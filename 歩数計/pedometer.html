@@ -1,0 +1,73 @@
+<html>
+
+<head>
+    <script>
+        // 重力加速度のしきい値
+        var GRAVITY_MIN = 9.8;
+        var GRAVITY_MAX = 12.00;
+        // 歩数
+        var _step = 0;
+        // 現在歩いているかどうか
+        var _isStep = false;
+
+        function initialize() {
+            DeviceMotionEvent.requestPermission().then(permissionState => {
+                // デバイスの加速度センサーの情報を取得します
+                window.addEventListener('devicemotion', onDeviceMotion);
+            })
+        }
+
+        function onDeviceMotion(e) {
+            e.preventDefault();
+            // 重力加速度を取得
+            var ag = e.accelerationIncludingGravity;
+            // 重力加速度ベクトルの大きさを取得
+            var acc = Math.sqrt(ag.x * ag.x + ag.y * ag.y + ag.z * ag.z);
+            // 
+            if (_isStep) {
+                // 歩行中にしきい値よりも低ければ一歩とみなす
+                if (acc < GRAVITY_MIN) {
+                    _step++;
+                    _isStep = false;
+                }
+            } else {
+                // しきい値よりも大きければ歩いているとみなす
+                if (acc > GRAVITY_MAX) {
+                    _isStep = true;
+                }
+            }
+            document.getElementById('step').textContent = _step;
+        }
+    </script>
+    <style>
+        .start-btn {
+            font-size: 30px;
+        }
+
+        #step {
+            font-size: 150px;
+        }
+
+        .counter-container {
+            padding: 50px;
+        }
+
+        .memo {
+            margin-top: 0px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="contents">
+        <h1>雑な歩数計 (iosで動作確認)</h1>
+        <div class="counter-container">
+            <button class="start-btn" onClick="initialize()">計測開始</button>
+            <p id="step">0</p>
+        </div>
+        <p class="memo">参考：<a href="https://qiita.com/kwst/items/5bd0c2e6c2c8ceb406e5">ブラウザで歩数計【Javascript】 - Qiita</a>
+        </p>
+    </div>
+</body>
+
+</html>
